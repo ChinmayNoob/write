@@ -1,5 +1,7 @@
 .git
 .github
+.wrangler
+.gitignore
 CNAME
 README.md
 .nojekyll
