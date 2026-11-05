@@ -1,82 +1,51 @@
-Writing
-=======
+# Write
 
-**Writing** is a lightweight distraction-free text editor, in the browser.
+**Write** is a lightweight, distraction-free text editor in the browser — Markdown + LaTeX, instant preview, and one-click PDF export. No login, no server, no tracking.
 
-Live version: [Writing](https://josephernest.github.io/writing/).
-
-Self-hosted version: [write.chinmay.fyi](https://write.chinmay.fyi/).
+**Live at [write.chinmay.fyi](https://write.chinmay.fyi/)**
 
 <img src="http://i.imgur.com/c56hDwi.gif" />
 
+## Features
 
-Installation
-----
-Just open `index.html` and that's it! There is no server code. Is that so simple? Yes!
+* **Instant preview** — no delay between typing and rendering, no flicker on math equations
+* **LaTeX / MathJax** — inline (`$x^2+1$`) and display (`$$...$$`) formulas
+* **PDF export** — click the **PDF** button (bottom-right) or press `CTRL + P`; the exported filename is taken from your first `# heading`, and `\pagebreak` forces a page break in the output
+* **Dark mode**, LaTeX-style Computer Modern or sans-serif font
+* **Autosave** — your text is stored in your browser's local storage
+* **Open / save `.md` files** — or just drag & drop one onto the page
+* **Zero backend** — pure static files; runs offline if you open `index.html` directly
 
-Deployment (write.chinmay.fyi)
-----
-Deployed to Cloudflare Workers (static assets) at [write.chinmay.fyi](https://write.chinmay.fyi/).
-The custom domain and DNS record are managed in the `wrangler.toml` routes config.
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `CTRL + P` | Export as PDF / print (or click the **PDF** button) |
+| `CTRL + D` | Toggle display mode (editor only / preview only / split) |
+| `CTRL + S` | Save source as `.md` file |
+| `CTRL + SHIFT + O` | Open a `.md` file |
+| `CTRL + SHIFT + D` | Toggle dark mode |
+| `CTRL + SHIFT + L` | Enable / disable LaTeX (math) |
+| `CTRL + SHIFT + R` | Toggle Computer Modern / sans-serif font |
+| `CTRL + SHIFT + H` | Help dialog |
+| `F11` | Full screen |
+
+## Run locally
+
+Open `index.html` in a browser. That's it — there is no build step and no server code.
+
+## Deploy
+
+Hosted on Cloudflare Workers (static assets) at `write.chinmay.fyi`. The worker name and custom domain are declared in `wrangler.toml`:
 
 ```
 npx wrangler deploy
 ```
 
-Usage
-----
+## Credits & license
 
-* CTRL + D: Toggle display mode
+MIT license.
 
-* CTRL + P: Print or export as PDF (or click the **PDF** button in the bottom-right corner)
+Based on [**Writing**](https://github.com/josephernest/writing) by Joseph Ernest (MIT), which uses [Pagedown](https://code.google.com/archive/p/pagedown/), [Pagedown Extra](https://github.com/jmcmanus/pagedown-extra), [MathJax](https://www.mathjax.org/), StackOverflow's [editor code](https://gist.github.com/gdalgas/a652bce3a173ddc59f66), and the [Computer Modern](http://cm-unicode.sourceforge.net/) font. Some of these libraries were slightly modified upstream to work together, which is why they are included in this package.
 
-* CTRL + S: Save source code as .MD file
-
-and a few other commands (change font, etc.) that can be found in:
-
-* CTRL+SHIFT+H or `?` bottom-left icon: Show help
-
-
-Why another Markdown editor? Why not just use StackEdit?
-----
-There are many online editors that support Markdown but:
-
-* half of them don't support LaTeX / MathJax (for math formulas)
-* some of them do, but have a **1-sec delay between keypress and display**, and I find this annoying, see e.g. [StackEdit](https://stackedit.io)
-* some of them have annoying flickering each time you write new text, once math is present on the page
-* most of them are not minimalist / distraction-free enough for me
-
-That's why I decided to make **Writing**:
-
-* open-source
-* no server needed, you can run it offline
-* fast rendering (no delay when writing / no flickering of math equations)
-* **just what you need: write, preview, save the code, print or save as PDF, and nothing else**
-* LPWP website, a.k.a. "Landing Page=Working Page", i.e. the first page that you visit on the website is the page *where things actually happen*, that means that there is no annoying welcome page or login page, etc.
-
-About
-----
-Author: Joseph Ernest ([@JosephErnest](https://twitter.com/JosephErnest))
-
-Other projects: [BigPicture](http://bigpicture.bi), [bigpicture.js](https://github.com/josephernest/bigpicture.js), [AReallyBigPage](https://github.com/josephernest/AReallyBigPage), [SamplerBox](http://www.samplerbox.org), [Void](https://github.com/josephernest/void), [TalkTalkTalk](https://github.com/josephernest/TalkTalkTalk), [sdfgh](https://github.com/josephernest/sdfgh), [RaspFIP](https://github.com/josephernest/RaspFIP/), [Yopp](https://github.com/josephernest/Yopp), etc.
-
-Sponsoring and consulting
-----
-
-I am available for Python, Data science, ML, Automation consulting. Please contact me on https://afewthingz.com for freelancing requests.
-
-Do you want to support the development of my open-source projects? Please contact me!
-
-I am currently sponsored by [CodeSigningStore.com](https://codesigningstore.com/). Thank you to them for providing a DigiCert Code Signing Certificate and supporting open source software.
-
-License
-----
-MIT license
-
-Dependencies
----
-**Writing** uses [Pagedown](https://code.google.com/archive/p/pagedown/), [Pagedown Extra](https://github.com/jmcmanus/pagedown-extra), [MathJax](https://www.mathjax.org/), StackOverflow's [editor code](https://gist.github.com/gdalgas/a652bce3a173ddc59f66), and the [Computer Modern](http://cm-unicode.sourceforge.net/) font.
-
-*Note: Some of these libraries have been slightly modified (a few lines of code), to make it work all together, that's why they are included in this package.*
-
-![](https://gget.it/pixel/writing.png)
+This fork adds the PDF export button, a Cloudflare deployment setup, and removes upstream analytics.
