@@ -5,6 +5,8 @@ Writing
 
 Live version: [Writing](https://josephernest.github.io/writing/).
 
+Self-hosted version: [write.chinmay.fyi](https://write.chinmay.fyi/).
+
 <img src="http://i.imgur.com/c56hDwi.gif" />
 
 
@@ -12,12 +14,21 @@ Installation
 ----
 Just open `index.html` and that's it! There is no server code. Is that so simple? Yes!
 
+Deployment (write.chinmay.fyi)
+----
+This fork is auto-deployed to GitHub Pages on every push to `main` via [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
+The custom domain is set in `CNAME` and must be pointed with a DNS record:
+
+```
+CNAME   write   →   ChinmayNoob.github.io
+```
+
 Usage
 ----
 
 * CTRL + D: Toggle display mode
 
-* CTRL + P: Print or export as PDF
+* CTRL + P: Print or export as PDF (or click the **PDF** button in the bottom-right corner)
 
 * CTRL + S: Save source code as .MD file
 

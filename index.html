@@ -59,9 +59,19 @@ html { font-family: sans-serif; }
 #closeicon { position: fixed; top: 10%; left: 25%; margin: 5px 8px; color: #ccc; cursor: pointer; font-family: sans-serif; }
 #openFileInput { position: absolute; display: none; }
 
+#pdficon { position: absolute; bottom: 0; right: 0; margin: 5px; color: #ccc; cursor: pointer; font-family: sans-serif; font-size: 15px; }
+
 @media print { 
-    #helpicon { display: none; } 
+    #helpicon, #pdficon { display: none; } 
+    #wmd-input { display: none; }
+    #wmd-preview { background-color: #fff; color: #000; }
     #wmd-preview .pagebreak { opacity: 0; }
+    .dark-mode #wmd-preview { background-color: #fff !important; color: #000 !important; }
+    .dark-mode #wmd-preview a { color: #07c !important; }
+    .dark-mode #wmd-preview p code, .dark-mode #wmd-preview li code, .dark-mode #wmd-preview pre { background-color: #f5f5f5 !important; }
+    .dark-mode #wmd-preview table th, .dark-mode #wmd-preview table td { border-color: #ddd !important; }
+    .dark-mode #wmd-preview table tr { background-color: #fff !important; border-color: #ccc !important; }
+    .dark-mode #wmd-preview blockquote { background-color: #defcff !important; border-color: #0ae2f5 !important; }
 }
 
 .dark-mode #wmd-input, .dark-mode #wmd-preview  { background-color: #212121; color: #FAFAFA; border-color: #757575;}
@@ -93,6 +103,7 @@ html { font-family: sans-serif; }
 <noscript>This text editor requires JavaScript.</noscript>
 </div>
 <div id="helpicon" class="unselectable">?</div>
+<div id="pdficon" class="unselectable" title="Export as PDF (CTRL + P)">PDF</div>
 <div id="help">
 <div id="closeicon" class="unselectable">X</div>    
 <pre>    
@@ -102,7 +113,7 @@ Write text on the left, and the result is displayed on the right.
 Commands
 --------
 CTRL + D: toggle display mode (editor only, preview only or both-at-the-same-time)
-CTRL + P: print or export as PDF
+CTRL + P: print or export as PDF (or click the "PDF" button, bottom-right corner)
 CTRL + S: save source code as .MD file
 CTRL + SHIFT + O: open .MD file
 
@@ -214,35 +225,39 @@ $('#helpicon').click(function() {
     $('#help').show();
 });
 
+$('#pdficon').click(function() {
+    exportPDF();
+});
+
 $('#closeicon, #wmd-input, #wmd-preview').click(function() {
     $('#help').hide();
 });
 
+exportPDF = function() {
+    // Suggest a meaningful filename for the exported PDF (browsers use the
+    // document title as the default "Save as PDF" filename)
+    var prevtitle = document.title;
+    var firstheading = $('#wmd-preview h1').first();
+    if (firstheading.length)
+        document.title = firstheading.text().trim();
+    if (mode != 1) {   // switch to preview-only mode (same as CTRL + D once)
+        mode = 1;
+        $('#wmd-input').hide();
+        $('#wmd-preview').show();
+        $('body').removeClass('fixedheight');
+        $('html').removeClass('fixedheight');
+    }
+    toggledarkmode(false);   // always print in light mode
+    window.print();
+    toggledarkmode(darkmodeenabled);
+    document.title = prevtitle;
+}
+
 $(document).on('keydown', function(e) {
     if (e.keyCode == 80 && (e.ctrlKey || e.metaKey)) {    // CTRL + P 
-        if (mode != 1) {
-            mode = 1;
-            $('#wmd-input').hide();
-            $('#wmd-preview').show();
-            $('body').removeClass('fixedheight');
-            $('html').removeClass('fixedheight');
-            toggledarkmode(false);
-            e.preventDefault();
-            window.print();
-            toggledarkmode(darkmodeenabled);
-            return false;
-        }
-        //var doc = new jsPDF();
-        //var specialElementHandlers = {'#editor': function (element, renderer) { return true; } };
-        //doc.fromHTML($('#wmd-preview').html(), 15, 15, { 'width': 170, 'elementHandlers': specialElementHandlers });
-        //doc.save('file.pdf');
-        /*var restorepage = $('body').html();
-        var printcontent = $('#wmd-preview').clone();
-        $('body').empty().html(printcontent);
-        window.print();
-        $('body').html(restorepage);
+        exportPDF();
         e.preventDefault();
-        return false;*/
+        return false;
     }
     else if (e.keyCode == 83 && (e.ctrlKey || e.metaKey)) {    // CTRL + S
         var blob = new Blob([$('#wmd-input').val()], {type: 'text'});     // https://stackoverflow.com/a/33542499/1422096
@@ -327,8 +342,6 @@ togglemathjax(latexenabled);
 toggledarkmode(darkmodeenabled);
 editor.run();
 </script>
-    
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-2312083-14"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-2312083-14');</script>
     
 </body>
 </html>
