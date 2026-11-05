@@ -1,0 +1,10 @@
+name = "write"
+compatibility_date = "2026-11-05"
+workers_dev = true
+
+[assets]
+directory = "."
+
+[[routes]]
+pattern = "write.chinmay.fyi"
+custom_domain = true

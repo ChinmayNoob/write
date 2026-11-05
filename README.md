@@ -16,11 +16,11 @@ Just open `index.html` and that's it! There is no server code. Is that so simple
 
 Deployment (write.chinmay.fyi)
 ----
-This fork is auto-deployed to GitHub Pages on every push to `main` via [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
-The custom domain is set in `CNAME` and must be pointed with a DNS record:
+Deployed to Cloudflare Workers (static assets) at [write.chinmay.fyi](https://write.chinmay.fyi/).
+The custom domain and DNS record are managed in the `wrangler.toml` routes config.
 
 ```
-CNAME   write   →   ChinmayNoob.github.io
+npx wrangler deploy
 ```
 
 Usage
