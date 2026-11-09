@@ -60,11 +60,12 @@ html { font-family: sans-serif; }
 #openFileInput { position: absolute; display: none; }
 
 #pdficon { position: absolute; bottom: 0; right: 0; margin: 5px; color: #ccc; cursor: pointer; font-family: sans-serif; font-size: 15px; }
-#count { position: fixed; bottom: 0; right: 3.2em; margin: 5px; color: #ccc; font-family: sans-serif; font-size: 15px; }
+#htmlicon { position: absolute; bottom: 0; right: 2.8em; margin: 5px; color: #ccc; cursor: pointer; font-family: sans-serif; font-size: 15px; }
+#count { position: fixed; bottom: 0; right: 6.2em; margin: 5px; color: #ccc; font-family: sans-serif; font-size: 15px; }
 #count:empty { display: none; }   /* CSS-driven hiding: jQuery .show() inline styles would defeat the @media print rule */
 
 @media print { 
-    #helpicon, #pdficon, #count { display: none; } 
+    #helpicon, #pdficon, #htmlicon, #count { display: none; }
     #wmd-input { display: none; }
     #wmd-preview { background-color: #fff; color: #000; }
     #wmd-preview .pagebreak { opacity: 0; }
@@ -105,6 +106,7 @@ html { font-family: sans-serif; }
 <noscript>This text editor requires JavaScript.</noscript>
 </div>
 <div id="helpicon" class="unselectable">?</div>
+<div id="htmlicon" class="unselectable" title="Export as HTML (CTRL + SHIFT + S)">HTML</div>
 <div id="pdficon" class="unselectable" title="Export as PDF (CTRL + P)">PDF</div>
 <div id="count" class="unselectable"></div>
 <div id="help">
@@ -118,6 +120,7 @@ Commands
 CTRL + D: toggle display mode (editor only, preview only or both-at-the-same-time)
 CTRL + P: print or export as PDF (or click the "PDF" button, bottom-right corner)
 CTRL + S: save source code as .MD file
+CTRL + SHIFT + S: export as standalone HTML file
 CTRL + SHIFT + O: open .MD file
 
 CTRL + SHIFT + L: enable / disable LaTeX (i.e. math formulas)
@@ -194,8 +197,42 @@ doctitle = function() {
     return t ? t : 'Write';
 }
 
-savename = function() {
-    return doctitle().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim().substring(0, 60) + '.md';
+savename = function(ext) {
+    return doctitle().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim().substring(0, 60) + (ext || '.md');
+}
+
+// The export reuses the live preview stylesheet, with #wmd-preview selectors
+// rewritten to body, so exported files never drift from the on-screen styling.
+exportcss = function() {
+    var collect = function(rulelist, media) {
+        var out = [];
+        for (var i = 0; i < rulelist.length; i++) {
+            var rule = rulelist[i];
+            if (rule.type == CSSRule.MEDIA_RULE) {
+                var inner = collect(rule.cssRules, rule.conditionText);
+                if (inner)
+                    out.push(inner);
+            }
+            else if (rule.selectorText && rule.selectorText.indexOf('#wmd-preview') >= 0 && rule.selectorText.indexOf('dark-mode') < 0) {
+                out.push(rule.cssText.replace(/#wmd-preview/g, 'body'));
+            }
+        }
+        return out.length ? (media ? '@media ' + media + ' {\n' + out.join('\n') + '\n}' : out.join('\n')) : '';
+    };
+    return collect(document.styleSheets[0].cssRules, null);
+}
+
+exportHTML = function() {
+    var doc = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n'
+        + '<title>' + doctitle().replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</title>\n'
+        + '<style>\n' + exportcss() + '\nbody { max-width: 800px; margin: 0 auto; padding: 20px; }\n</style>\n'
+        + '</head>\n<body>\n' + $('#wmd-preview').html() + '\n</body>\n</html>\n';
+    var elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(new Blob([doc], {type: 'text/html'}));
+    elem.download = savename('.html');
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
 }
 
 setmode = function(m) {
@@ -304,6 +341,10 @@ $('#pdficon').click(function() {
     exportPDF();
 });
 
+$('#htmlicon').click(function() {
+    exportHTML();
+});
+
 $('#closeicon, #wmd-input, #wmd-preview').click(function() {
     $('#help').hide();
 });
@@ -323,7 +364,7 @@ $(document).on('keydown', function(e) {
         e.preventDefault();
         return false;
     }
-    else if (e.keyCode == 83 && (e.ctrlKey || e.metaKey)) {    // CTRL + S
+    else if (e.keyCode == 83 && (e.ctrlKey || e.metaKey) && !e.shiftKey) {    // CTRL + S
         var blob = new Blob([$('#wmd-input').val()], {type: 'text'});     // https://stackoverflow.com/a/33542499/1422096
         if (window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveBlob(blob, savename());
@@ -336,6 +377,11 @@ $(document).on('keydown', function(e) {
             elem.click();        
             document.body.removeChild(elem);
         }
+        e.preventDefault();
+        return false;
+    }
+    else if (e.keyCode == 83 && (e.ctrlKey || e.metaKey) && e.shiftKey) {    // CTRL + SHIFT + S
+        exportHTML();
         e.preventDefault();
         return false;
     }

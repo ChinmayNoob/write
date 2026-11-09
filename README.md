@@ -11,6 +11,7 @@
 * **Instant preview** — no delay between typing and rendering, no flicker on math equations
 * **LaTeX / MathJax** — inline (`$x^2+1$`) and display (`$$...$$`) formulas
 * **PDF export** — click the **PDF** button (bottom-right) or press `CTRL + P`; the exported filename is taken from your first `# heading`, and `\pagebreak` forces a page break in the output
+* **HTML export** — click the **HTML** button (bottom-right) or press `CTRL + SHIFT + S` to save a standalone `.html` file styled like the preview
 * **Dark mode**, LaTeX-style Computer Modern or sans-serif font — dark mode, font and layout (split / editor / preview) choices are remembered between visits
 * **Autosave** — your text is stored in your browser's local storage
 * **Open / save `.md` files** — saves are named after your first `# heading`, or just drag & drop one onto the page
@@ -23,6 +24,7 @@
 | `CTRL + P` | Export as PDF / print (or click the **PDF** button) |
 | `CTRL + D` | Toggle display mode (editor only / preview only / split) |
 | `CTRL + S` | Save source as `.md` file |
+| `CTRL + SHIFT + S` | Export as standalone `.html` file |
 | `CTRL + SHIFT + O` | Open a `.md` file |
 | `CTRL + SHIFT + D` | Toggle dark mode |
 | `CTRL + SHIFT + L` | Enable / disable LaTeX (math) |
