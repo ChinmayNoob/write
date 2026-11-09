@@ -18,7 +18,7 @@
 <head>
 <link rel="icon" href="favicon.ico" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />  
-<title>Writing</title>
+<title>Write</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style type="text/css">
 @font-face { font-family: texroman; src: url(cmunrm.otf); font-weight: 400; font-style: normal; font-stretch: normal; }
@@ -183,6 +183,18 @@ toggledarkmode = function(enabled){
     $('body').toggleClass('dark-mode',enabled);
 }
 
+// The first "# " heading names the document everywhere: the tab title,
+// the print/PDF filename (browsers derive it from document.title) and the .md download name.
+doctitle = function() {
+    var m = $('#wmd-input').val().match(/^[ ]{0,3}#(?!#)[ \t]*(.*?)[ \t]*#*[ \t]*$/m);
+    var t = m ? m[1].trim() : '';
+    return t ? t : 'Write';
+}
+
+savename = function() {
+    return doctitle().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim().substring(0, 60) + '.md';
+}
+
 if (localStorage.getItem("writing") !== null) {
     $('#wmd-input').val(localStorage.getItem("writing"));
 }
@@ -200,6 +212,7 @@ readFile = function(file){ // https://stackoverflow.com/a/26298948/1422096
     var contents = e.target.result;
     $('#wmd-input').val(contents);        // display file content
     editor.refreshPreview();
+    document.title = doctitle();
   };
   reader.readAsText(file);
 }
@@ -216,6 +229,7 @@ $('body').on('drag dragstart dragend dragover dragenter dragleave drop', functio
 
 $('#wmd-input').on('input', function() {
     localStorage.setItem("writing", $('#wmd-input').val());
+    document.title = doctitle();
 });
 
 $('#wmd-input').focus();
@@ -233,12 +247,6 @@ $('#closeicon, #wmd-input, #wmd-preview').click(function() {
 });
 
 exportPDF = function() {
-    // Suggest a meaningful filename for the exported PDF (browsers use the
-    // document title as the default "Save as PDF" filename)
-    var prevtitle = document.title;
-    var firstheading = $('#wmd-preview h1').first();
-    if (firstheading.length)
-        document.title = firstheading.text().trim();
     if (mode != 1) {   // switch to preview-only mode (same as CTRL + D once)
         mode = 1;
         $('#wmd-input').hide();
@@ -249,7 +257,6 @@ exportPDF = function() {
     toggledarkmode(false);   // always print in light mode
     window.print();
     toggledarkmode(darkmodeenabled);
-    document.title = prevtitle;
 }
 
 $(document).on('keydown', function(e) {
@@ -261,12 +268,12 @@ $(document).on('keydown', function(e) {
     else if (e.keyCode == 83 && (e.ctrlKey || e.metaKey)) {    // CTRL + S
         var blob = new Blob([$('#wmd-input').val()], {type: 'text'});     // https://stackoverflow.com/a/33542499/1422096
         if (window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveBlob(blob, 'newfile.md');
+            window.navigator.msSaveBlob(blob, savename());
         }
         else {
             var elem = window.document.createElement('a');
             elem.href = window.URL.createObjectURL(blob);
-            elem.download = 'newfile.md';        
+            elem.download = savename();
             document.body.appendChild(elem);
             elem.click();        
             document.body.removeChild(elem);
@@ -340,6 +347,7 @@ var mjpd1 = new mjpd();
 togglemathjax(latexenabled);
 toggledarkmode(darkmodeenabled);
 editor.run();
+document.title = doctitle();
 </script>
     
 </body>
