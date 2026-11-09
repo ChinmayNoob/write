@@ -230,6 +230,27 @@ updatecount = function() {
     $('#count').text(s.words ? s.words + ' words, ' + s.chars + ' characters' : '');
 }
 
+// syncecho suppresses the scroll event of the pane we scrolled programmatically,
+// while leaving real user scrolls of that pane free to sync back.
+var syncecho = null;
+
+syncscroll = function(pane) {
+    if (syncecho && syncecho.pane == pane && Date.now() < syncecho.until
+        && Math.abs($('#' + pane).scrollTop() - syncecho.top) < 2)
+        return;
+    var other = pane == 'wmd-input' ? 'wmd-preview' : 'wmd-input';
+    var $from = $('#' + pane), $to = $('#' + other);
+    if (!$from.is(':visible') || !$to.is(':visible'))
+        return;
+    var frommax = $from[0].scrollHeight - $from[0].clientHeight;
+    var tomax = $to[0].scrollHeight - $to[0].clientHeight;
+    if (frommax <= 0 || tomax <= 0)
+        return;
+    var top = Math.round($from.scrollTop() / frommax * tomax);
+    syncecho = {pane: other, top: top, until: Date.now() + 150};
+    $to.scrollTop(top);
+}
+
 if (localStorage.getItem("writing") !== null) {
     $('#wmd-input').val(localStorage.getItem("writing"));
 }
@@ -267,6 +288,10 @@ $('#wmd-input').on('input', function() {
     localStorage.setItem("writing", $('#wmd-input').val());
     document.title = doctitle();
     updatecount();
+});
+
+$('#wmd-input, #wmd-preview').on('scroll', function() {
+    syncscroll(this.id);
 });
 
 $('#wmd-input').focus();
@@ -370,6 +395,9 @@ var savedmode = parseInt(localStorage.getItem("mode"), 10);
 if (savedmode == 1 || savedmode == 2)
     setmode(savedmode);
 editor.run();
+editor.hooks.chain("onPreviewRefresh", function() {
+    syncscroll('wmd-input');
+});
 document.title = doctitle();
 updatecount();
 </script>
