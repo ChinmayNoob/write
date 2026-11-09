@@ -195,6 +195,27 @@ savename = function() {
     return doctitle().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim().substring(0, 60) + '.md';
 }
 
+setmode = function(m) {
+    mode = m;
+    localStorage.setItem("mode", mode);
+    if (m == 1) {
+        $('#wmd-input').hide();
+        $('#wmd-preview').show();
+        $('body').removeClass('fixedheight');
+        $('html').removeClass('fixedheight');
+    }
+    else if (m == 2) {
+        $('#wmd-preview').hide();
+        $('#wmd-input').show().css('float', 'none').css('width', '100%').focus();
+        $('body').addClass('fixedheight');
+        $('html').addClass('fixedheight');
+    }
+    else {
+        $('#wmd-input').show().css('float', 'left').css('width', '50%').focus();
+        $('#wmd-preview').show();
+    }
+}
+
 if (localStorage.getItem("writing") !== null) {
     $('#wmd-input').val(localStorage.getItem("writing"));
 }
@@ -248,11 +269,7 @@ $('#closeicon, #wmd-input, #wmd-preview').click(function() {
 
 exportPDF = function() {
     if (mode != 1) {   // switch to preview-only mode (same as CTRL + D once)
-        mode = 1;
-        $('#wmd-input').hide();
-        $('#wmd-preview').show();
-        $('body').removeClass('fixedheight');
-        $('html').removeClass('fixedheight');
+        setmode(1);
     }
     toggledarkmode(false);   // always print in light mode
     window.print();
@@ -282,23 +299,7 @@ $(document).on('keydown', function(e) {
         return false;
     }
     else if (e.keyCode == 68 && (e.ctrlKey || e.metaKey) && !e.shiftKey) {    // CTRL + D
-        mode += 1; if (mode == 3) mode = 0;
-        if (mode == 1) {
-            $('#wmd-input').hide();
-            $('#wmd-preview').show();
-            $('body').removeClass('fixedheight');
-            $('html').removeClass('fixedheight');
-        }
-        else if (mode == 2) {
-            $('#wmd-preview').hide();            
-            $('#wmd-input').show().css('float', 'none').css('width', '100%').focus();
-            $('body').addClass('fixedheight');
-            $('html').addClass('fixedheight');
-        }
-        else {
-            $('#wmd-input').show().css('float', 'left').css('width', '50%').focus();
-            $('#wmd-preview').show();
-        }
+        setmode((mode + 1) % 3);
         e.preventDefault();
         return false;
     }        
@@ -316,6 +317,7 @@ $(document).on('keydown', function(e) {
     }    
     else if (e.keyCode == 82 && (e.ctrlKey || e.metaKey) && e.shiftKey) {    // CTRL + SHIFT + R
         $('html').toggleClass('texroman');
+        localStorage.setItem("texroman", $('html').hasClass('texroman') ? "1" : "0");
         e.preventDefault();
         return false;
     }    
@@ -346,6 +348,11 @@ var editor = new Markdown.Editor(converter, '');
 var mjpd1 = new mjpd();
 togglemathjax(latexenabled);
 toggledarkmode(darkmodeenabled);
+if (localStorage.getItem("texroman") == "0")
+    $('html').removeClass('texroman');
+var savedmode = parseInt(localStorage.getItem("mode"), 10);
+if (savedmode == 1 || savedmode == 2)
+    setmode(savedmode);
 editor.run();
 document.title = doctitle();
 </script>
