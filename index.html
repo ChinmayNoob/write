@@ -60,9 +60,11 @@ html { font-family: sans-serif; }
 #openFileInput { position: absolute; display: none; }
 
 #pdficon { position: absolute; bottom: 0; right: 0; margin: 5px; color: #ccc; cursor: pointer; font-family: sans-serif; font-size: 15px; }
+#count { position: fixed; bottom: 0; right: 3.2em; margin: 5px; color: #ccc; font-family: sans-serif; font-size: 15px; }
+#count:empty { display: none; }   /* CSS-driven hiding: jQuery .show() inline styles would defeat the @media print rule */
 
 @media print { 
-    #helpicon, #pdficon { display: none; } 
+    #helpicon, #pdficon, #count { display: none; } 
     #wmd-input { display: none; }
     #wmd-preview { background-color: #fff; color: #000; }
     #wmd-preview .pagebreak { opacity: 0; }
@@ -104,6 +106,7 @@ html { font-family: sans-serif; }
 </div>
 <div id="helpicon" class="unselectable">?</div>
 <div id="pdficon" class="unselectable" title="Export as PDF (CTRL + P)">PDF</div>
+<div id="count" class="unselectable"></div>
 <div id="help">
 <div id="closeicon" class="unselectable">X</div>    
 <pre>    
@@ -216,6 +219,17 @@ setmode = function(m) {
     }
 }
 
+countstats = function() {
+    var text = $('#wmd-input').val();
+    var words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    return {words: words, chars: text.length};
+}
+
+updatecount = function() {
+    var s = countstats();
+    $('#count').text(s.words ? s.words + ' words, ' + s.chars + ' characters' : '');
+}
+
 if (localStorage.getItem("writing") !== null) {
     $('#wmd-input').val(localStorage.getItem("writing"));
 }
@@ -234,6 +248,7 @@ readFile = function(file){ // https://stackoverflow.com/a/26298948/1422096
     $('#wmd-input').val(contents);        // display file content
     editor.refreshPreview();
     document.title = doctitle();
+    updatecount();
   };
   reader.readAsText(file);
 }
@@ -251,6 +266,7 @@ $('body').on('drag dragstart dragend dragover dragenter dragleave drop', functio
 $('#wmd-input').on('input', function() {
     localStorage.setItem("writing", $('#wmd-input').val());
     document.title = doctitle();
+    updatecount();
 });
 
 $('#wmd-input').focus();
@@ -355,6 +371,7 @@ if (savedmode == 1 || savedmode == 2)
     setmode(savedmode);
 editor.run();
 document.title = doctitle();
+updatecount();
 </script>
     
 </body>
